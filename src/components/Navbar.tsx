@@ -14,10 +14,23 @@ import {
 import { Button } from "./ui/button";
 import { useTheme } from "next-themes";
 import { SidebarTrigger, useSidebar } from "./ui/sidebar";
+import { useFormContext } from "@/context/FormContext";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/auth/AuthProvider";
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const { toggleSidebar } = useSidebar();
+  const useContext = useFormContext();
+  const { setIsAuthenticated } = useContext;
+  const router = useRouter();
+  const {logout} = useAuth();
+
+  const handleLogout = () => {
+    logout(); // Call the logout function from AuthProvider
+    router.push("/"); // Redirect to the login page
+  }
+
   return (
     <nav className="p-4 flex items-center justify-between sticky top-0 bg-background z-10">
       {/* LEFT */}
@@ -68,7 +81,7 @@ const Navbar = () => {
               <Settings className="h-[1.2rem] w-[1.2rem] mr-2" />
               Settings
             </DropdownMenuItem>
-            <DropdownMenuItem variant="destructive">
+            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
               <LogOut className="h-[1.2rem] w-[1.2rem] mr-2" />
               Logout
             </DropdownMenuItem>

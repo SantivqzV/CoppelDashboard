@@ -1,50 +1,62 @@
 "use client";
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { fetchProducts } from "@/Constants/products";
+import { useEffect, useState } from "react";
+import { Products } from "@/types/types";
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  count: {
+    label: "count",
     color: "var(--chart-1)",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "var(--chart-4)",
   },
 } satisfies ChartConfig;
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-];
-
 const AppBarChart = () => {
+  const [products, setProducts] = useState<Products[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchProducts();
+        // Sort products by quantity in descending order
+        const sortedProducts = data.sort((a, b) => b.count - a.count);
+        // Limit to top 5 products
+        setProducts(sortedProducts.slice(0, 5));
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
     <div className="">
-      <h1 className="text-lg font-medium mb-6">Total Revenue</h1>
+      <h1 className="text-lg font-medium mb-6">Most sold items</h1>
       <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-        <BarChart accessibilityLayer data={chartData}>
+        <BarChart accessibilityLayer data={products}>
           <CartesianGrid vertical={false} />
           <XAxis
-            dataKey="month"
+            dataKey="name"
             tickLine={false}
-            tickMargin={10}
+            tickMargin={5}
             axisLine={false}
-            tickFormatter={(value) => value.slice(0, 3)}
           />
           <YAxis
             tickLine={false}
-            tickMargin={10}
+            tickMargin={5}
             axisLine={false}
+            domain={[
+              0,
+              (dataMax: number) => {
+                const padded = dataMax * 1.1;
+                return Math.ceil(padded / 5) * 5; // rounds up to next multiple of 5
+              },
+            ]}
           />
           <ChartTooltip content={<ChartTooltipContent />} />
           <ChartLegend content={<ChartLegendContent />} />
-          <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-          <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+          <Bar dataKey="count" fill="var(--chart-1)" radius={4} />
         </BarChart>
       </ChartContainer>
     </div>
