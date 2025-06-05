@@ -4,9 +4,20 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { encryptData, decryptData } from "@/lib/crypto";
 
+// Define a User interface based on your API response shape
+interface User {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  color_hex?: string;
+  color_index?: number;
+  // Add other user fields as needed
+}
+
 interface AuthContextType {
-  user: any;
-  setUser: (user: any) => void;
+  user: User | null;
+  setUser: (user: User | null) => void;
   login: (identifier: string, password: string) => Promise<boolean>;
   signup: (
     name: string,
@@ -15,7 +26,7 @@ interface AuthContextType {
     password: string,
     color_hex?: string,
     color_index?: number
-  ) => Promise<any>;
+  ) => Promise<unknown>;
   logout: () => void;
 }
 
@@ -26,15 +37,15 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const userCookie = Cookies.get("user");
     if (userCookie) {
       try {
-        const decryptedUser = decryptData(userCookie);
+        const decryptedUser = decryptData(userCookie) as User;
         setUser(decryptedUser);
-      } catch (e) {
+      } catch {
         setUser(null);
       }
     }
@@ -51,13 +62,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (response.data && response.data.success) {
         const Cookie_data = encryptData(response.data);
-        setUser(response.data.user);
+        setUser(response.data.user as User);
         Cookies.set("user", Cookie_data, { expires: 7, path: "/" });
         return true;
       } else {
         return false;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login error:", error);
       return false;
     }
@@ -71,7 +82,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     password: string,
     color_hex: string = "#000000",
     color_index: number = 0
-  ) => {
+  ): Promise<unknown> => {
     try {
       const response = await axios.post("https://server-zzcb.onrender.com/register-user", {
         name,
@@ -82,7 +93,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         color_index,
       });
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw error;
     }
   };
