@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Operators } from "@/types/types";
 
-export const fetchOperators = async (): Promise<Operators[]> => {
+export async function fetchOperators(): Promise<Operators[]> {
     try {
         const response = await axios.get<Operators[]>('https://server-zzcb.onrender.com/get-operators');
         return response.data;

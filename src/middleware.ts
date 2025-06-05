@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { decryptData } from "./lib/crypto";
-import useAuth from "./hooks/useAuth";
 
 export function middleware(request: NextRequest) {
   const userCookie = request.cookies.get("user")?.value;

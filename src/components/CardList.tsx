@@ -1,14 +1,22 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardFooter, CardTitle } from "./ui/card";
+import { Card, CardContent, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { fetchOperators, fetchColor, deleteOperator } from "@/Constants/operators";
 import { Button } from "@components/ui/button";
 import axios from "axios";
 
-// Modal component for edit
-function EditOperatorModal({ operator, onClose }: { operator: any; onClose: () => void }) {
+// Define a type for Operator
+interface Operator {
+  id: string;
+  name: string;
+  username: string;
+  color_hex?: string;
+  color_index?: number;
+}
+
+function EditOperatorModal({ operator, onClose }: { operator: Operator; onClose: () => void }) {
   const colorOptions = [
     "#000000", "#FF5733", "#33C1FF", "#33FF57", "#FFC300", "#A633FF", "#FF33A8"
   ];
@@ -39,7 +47,7 @@ function EditOperatorModal({ operator, onClose }: { operator: any; onClose: () =
     }
     getColor();
     return () => { ignore = true; };
-  }, [operator]);
+  }, [operator, colorOptions]);
 
   if (!operator) return null;
 
@@ -62,8 +70,8 @@ function EditOperatorModal({ operator, onClose }: { operator: any; onClose: () =
         color_hex: selectedColor,
         color_index,
       });
-    } catch (error) {
-      console.error("Error updating operator color:", error);
+    } catch {
+      // Error intentionally ignored
     }
     setLoading(false);
     onClose();
@@ -118,14 +126,24 @@ function EditOperatorModal({ operator, onClose }: { operator: any; onClose: () =
 }
 
 const CardList = ({ title }: { title: string }) => {
-  const [operators, setOperators] = useState<any[]>([]);
-  const [selected, setSelected] = useState<any | null>(null);
-  const [deleteUser, setDeleteUser] = useState<any | null>(null);
+  const [operators, setOperators] = useState<Operator[]>([]);
+  const [selected, setSelected] = useState<Operator | null>(null);
+  const [deleteUser, setDeleteUser] = useState<Operator | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
-    fetchOperators().then(setOperators);
-  }, []);
+  fetchOperators().then((result) => {
+    setOperators(
+      result.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        username: item.username ?? "", // fallback if missing
+        color_hex: item.color_hex,
+        color_index: item.color_index,
+      }))
+    );
+  });
+}, []);
 
   const handleDelete = async () => {
     if (!deleteUser) return;
@@ -133,7 +151,7 @@ const CardList = ({ title }: { title: string }) => {
     try {
       await deleteOperator(deleteUser.username);
       window.location.reload(); // Or refetch operators if you want to avoid full reload
-    } catch (error) {
+    } catch {
       alert("Failed to delete user.");
     }
     setDeleteLoading(false);

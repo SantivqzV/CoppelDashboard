@@ -30,10 +30,16 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+type ChartData = {
+  day: string
+  total: number
+  // Add other fields if needed
+}
+
 const BarChartOrders = () => {
   const [activeChart, setActiveChart] =
     React.useState<keyof typeof chartConfig>("total")
-  const [data, setData] = React.useState<any[]>([])
+  const [data, setData] = React.useState<ChartData[]>([])
 
   React.useEffect(() => {
     fetchScannedItems().then((result) => {
@@ -101,11 +107,11 @@ const BarChartOrders = () => {
               tickFormatter={(value) => {
                 const date = new Date(value + "T00:00:00Z");
                 return date.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    timeZone: "UTC",
+                  month: "short",
+                  day: "numeric",
+                  timeZone: "UTC",
                 });
-            }}
+              }}
             />
             <ChartTooltip
               content={
