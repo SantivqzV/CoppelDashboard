@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchCubbies } from "@/Constants/cubbies";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
+import { Carousel, CarouselContent, CarouselItem } from "./ui/carousel";
 import { Cubby } from "@/types/types";
 
 const statusColors: Record<string, string> = {
