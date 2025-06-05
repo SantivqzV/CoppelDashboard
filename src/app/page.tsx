@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { useFormContext } from "@/context/FormContext";
 import { useRouter } from "next/navigation";
 import  useAuth  from "@/hooks/useAuth"; // Assuming you have a custom hook for authentication
-import { useForm } from "react-hook-form";
 
 const Homepage = () => {
   const [Username, setUsername] = useState("");

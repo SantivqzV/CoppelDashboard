@@ -22,16 +22,31 @@ const SignupPage = () => {
         return;
     }
     setLoading(true);
+    // ...existing code...
     try {
         await signup(name, username, email, password, "#000000", 0);
         await login(username, password);
         alert("Signup successful! Redirecting to Home Page...");
         router.push("/home");
-    } catch (error: any) {
-        alert(error?.response?.data?.detail || "Signup failed.");
+    } catch (error: unknown) {
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "response" in error &&
+          typeof (error as any).response === "object" &&
+          (error as any).response !== null &&
+          "data" in (error as any).response &&
+          typeof (error as any).response.data === "object" &&
+          (error as any).response.data !== null &&
+          "detail" in (error as any).response.data
+        ) {
+          alert((error as any).response.data.detail);
+        } else {
+          alert("Signup failed.");
+        }
     }
     setLoading(false);
-    };
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen w-full">
